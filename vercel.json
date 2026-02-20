@@ -1,11 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": ".",
-  "framework": "other",
-  "installCommand": "npm install",
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "nodejs18.x"
-    }
-  }
+  "outputDirectory": "dist",
+  "framework": "express",
+  "installCommand": "npm install"
 }
