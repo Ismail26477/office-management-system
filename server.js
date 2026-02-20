@@ -3,12 +3,24 @@ import cors from "cors"
 import { MongoClient, ObjectId } from "mongodb"
 import dotenv from "dotenv"
 import bcrypt from "bcryptjs"
+import path from "path"
+import { fileURLToPath } from "url"
+import fs from "fs"
 
 dotenv.config()
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const app = express()
 app.use(cors())
 app.use(express.json())
+
+// Serve static files from the dist directory (Vite build output)
+const distPath = path.join(__dirname, "dist")
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath))
+}
 
 const MONGO_URI =
   process.env.MONGODB_URI || "mongodb+srv://vedaa:vedaa123@vedaa-ai.blmd84r.mongodb.net/?appName=vedaa-Ai"
@@ -2028,6 +2040,19 @@ app.post("/api/seed/all", async (req, res) => {
   } catch (error) {
     console.error("Error seeding all collections:", error)
     res.status(500).json({ error: error.message })
+  }
+})
+
+// Fallback route for SPA - serve index.html for all non-API routes
+app.get("*", (req, res) => {
+  const indexPath = path.join(distPath, "index.html")
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath)
+  } else {
+    res.status(404).json({
+      error: "Frontend not built. Please run 'npm run build' before deploying.",
+      availableAt: `${req.protocol}://${req.get("host")}/api/health`,
+    })
   }
 })
 
